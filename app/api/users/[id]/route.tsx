@@ -1,41 +1,63 @@
 import { NextRequest, NextResponse } from "next/server";
 import schema from "../schema";
+import prisma from "@/prisma/client";
 
-export function GET(
+export async function GET(
     request: NextRequest,
-    { params }: { params: { id: number } }) {
-    if (params.id > 10) {
-        return NextResponse.json({ error: "id must be less than 10" }, { status: 404 });
+    { params }: { params: { id: string } }) {
+    const res = await prisma.nextjs.findUnique({
+        where: { id: parseInt(params.id) }
+    })
+    if (!res) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json({
-        id: 1,
-        name: "vide"
-    })
+    return NextResponse.json(res);
 }
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: number } }) {
+    { params }: { params: { id: string } }) {
     const body = await request.json();
     const validator = schema.safeParse(body);
     if (!validator.success) {
         return NextResponse.json(validator.error.errors.map(error => error.message), { status: 400 });
     }
 
-    if (params.id > 10) {
-        return NextResponse.json({ error: "id must be less than 10" }, { status: 404 });
+    const res = await prisma.nextjs.findUnique({
+        where: { id: parseInt(params.id) }
+    })
+
+    if (!res) {
+        return NextResponse.json({ error: "User does not exist" }, { status: 404 });
     }
 
-    return NextResponse.json({ id: 1, name: body.name })
+    const finalres = await prisma.nextjs.update({
+        where: { id: res.id },
+        data: {
+            name: body.name,
+            email: body.email
+        }
+    })
+
+    return NextResponse.json(finalres)
 }
 
-export function DELETE(
+export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: number } }) {
-    if (params.id > 10) {
-        return NextResponse.json({ error: "id must be less than 10" }, { status: 404 });
+    { params }: { params: { id: string } }) {
+
+    const res = await prisma.nextjs.findUnique({
+        where: { id: parseInt(params.id) }
+    })
+
+    if (!res) {
+        return NextResponse.json({ error: "User does not exist" }, { status: 404 });
     }
+
+    const finalres = await prisma.nextjs.delete({
+        where: { id: res.id }
+    })
 
     return NextResponse.json({ message: "User deleted successfully" })
 }
