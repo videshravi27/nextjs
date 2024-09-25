@@ -18,6 +18,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      {/* <script async src='https"//www.googletagmanager.com/gtag/js?id' />
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX'); // Replace with your GA tracking ID
+      </script> */}
+
       <body className={inter.className}>
         <AuthProvider>
           <Navbar />
